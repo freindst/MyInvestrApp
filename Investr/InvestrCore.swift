@@ -129,17 +129,17 @@ class InvestrCore: NSObject
     static func checkOwnedStocks(numOwnedLabel: UILabel, tempID: String, stockName: String)
     {
             let query = PFQuery(className: "Transaction")
-            query.whereKey("GameID", equalTo: PFObject(withoutDataWithClassName: "Game", objectId: tempID))
+            query.whereKey("GameID", equalTo: PFObject(outDataWithClassName: "Game", objectId: tempID))
             query.whereKey("userName", equalTo: InvestrCore.currUser)
             do
             {
                 let theObjects =  try query.findObjects()
                 if theObjects[0]["stocksInHand"] != nil
                 {
-                    
-                    for(var i = 0; i < theObjects[0]["stocksInHand"].count!;i++)
+                    let stocks = theObjects[0].objectForKey("stocksInHand") as! NSArray
+                    for var i in 0.stride(to: stocks.count, by: 1)
                     {
-                        let tempStock = theObjects[0]["stocksInHand"][i] as! NSDictionary
+                        let tempStock = stocks[i] as! NSDictionary
                         let tempStockName = tempStock["symbol"] as! NSString
                         if tempStockName == stockName
                         {
@@ -168,7 +168,7 @@ class InvestrCore: NSObject
     
     static func indexOfStock(array: NSMutableArray, name: String) -> Int
     {
-        for(var i = 0; i<array.count;i++)
+        for i in 0.stride(to: array.count, by: 1)
         {
             if((array[i] as! Stock).name == name)
             {
@@ -199,13 +199,13 @@ class InvestrCore: NSObject
     {
         Alamofire.request(.GET, "https://investr-app.herokuapp.com/mobile/rank/\(gameID)", encoding: .JSON)
             .responseJSON { response in
-                print(response.2.value!["ranking"])
+                print(response.2.value!.objectForKey("ranking"))
                 let count = (response.2.value!["ranking"]!!.count)
                 
-                for(var i = 0; i < count; i++)
+                for i in 0.stride(to: count, by: 1)
                 {
-                    names.addObject(response.2.value!["ranking"]!![i]["username"] as! String)
-                    wallets.addObject(response.2.value!["ranking"]!![i]["wallet"] as! Double)
+                    names.addObject(response.2.value!.objectForKey("ranking")![i].objectForKey("username") as! String)
+                    wallets.addObject(response.2.value!.objectForKey("ranking")![i].objectForKey("wallet") as! Double)
                 }
                self.tempString.updateValue("1")
                 
@@ -227,28 +227,28 @@ class InvestrCore: NSObject
                     array.removeAllObjects()
                     var tempChange = 0.0
                     var tempBid = ""
-                    for(var i = 0; i < count; i++)
+                    for i in 0.stride(to: count, by: 1)
                     {
-                        if((response.2.value!["response"]!![i]["share"] as! String) != "0")
+                        if((response.2.value!.objectForKey("response")![i].objectForKey("share") as! String) != "0")
                         {
-                            let tempName = response.2.value!["response"]!![i]["symbol"] as! String
-                            let tempNum = response.2.value!["response"]!![i]["share"] as! String
-                            if(response.2.value!["response"]!![i]["change"] is NSNull)
+                            let tempName = response.2.value!.objectForKey("response")![i].objectForKey("symbol") as! String
+                            let tempNum = response.2.value!.objectForKey("response")![i].objectForKey("share") as! String
+                            if(response.2.value!.objectForKey("response")![i].objectForKey("change") is NSNull)
                             {
                                 tempChange = 0.0
                             }
                             else
                             {
-                                tempChange = response.2.value!["response"]!![i]["change"] as! Double
+                                tempChange = response.2.value!.objectForKey("response")![i].objectForKey("change") as! Double
                             }
-                            let tempBuy = response.2.value!["response"]!![i]["bought_price"] as! String
-                            if(response.2.value!["response"]!![i]["bid_price"] is NSNull)
+                            let tempBuy = response.2.value!.objectForKey("response")![i].objectForKey("bought_price") as! String
+                            if(response.2.value!.objectForKey("response")![i].objectForKey("bid_price") is NSNull)
                             {
                                 tempBid = "N/A"
                             }
                             else
                             {
-                                tempBid = response.2.value!["response"]!![i]["bid_price"] as! String
+                                tempBid = response.2.value!.objectForKey("response")![i].objectForKey("bid_price") as! String
                             }
                             let tempStock = Stock(name: tempName, value: (Int(tempNum))!, change: tempChange, buyVal: (Double(tempBuy))!, bidVal: tempBid)
                             array.addObject(tempStock)
@@ -271,12 +271,12 @@ class InvestrCore: NSObject
                 
                 
                 
-                for(var i = 0; i < response.2.value!.count; i++ )
+                for i in 0.stride(to: response.2.value!.count, by: 1 )
                 {
-                    let tempPort = response.2.value![i]["portfolio"]
-                    thePorts.addObject(tempPort!!)
-                    let tempGame = response.2.value![i]["gameID"]
-                    theGames.addObject(tempGame!!)
+                    let tempPort = response.2.value![i].objectForKey("portfolio")
+                    thePorts.addObject(tempPort!)
+                    let tempGame = response.2.value![i].objectForKey("gameID")
+                    theGames.addObject(tempGame!)
                 }
                 print(theGames)
                 print(thePorts)

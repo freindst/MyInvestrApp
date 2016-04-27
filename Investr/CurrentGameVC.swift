@@ -49,7 +49,7 @@ class CurrentGameVC: UIViewController, Observable {
         if self.revealViewController() != nil
         {
             self.menuButton.target = self.revealViewController()
-            self.menuButton.action = "revealToggle:"
+            self.menuButton.action = #selector(SWRevealViewController.revealToggle(_:))
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
         
@@ -66,8 +66,8 @@ class CurrentGameVC: UIViewController, Observable {
         self.dateLabel.text = "\(self.shortDate)"
         self.refresher = UIRefreshControl()
         self.refresher.addTarget(self, action: "autoRefresh:", forControlEvents: .ValueChanged)
-        self.timer = NSTimer.scheduledTimerWithTimeInterval(15.0, target: self, selector: "autoRefresh", userInfo:  nil, repeats: true)
-        self.walletPortTimer = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: "walletPortRefresh", userInfo: nil, repeats: true)
+        self.timer = NSTimer.scheduledTimerWithTimeInterval(15.0, target: self, selector: #selector(CurrentGameVC.autoRefresh), userInfo:  nil, repeats: true)
+        self.walletPortTimer = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: #selector(CurrentGameVC.walletPortRefresh), userInfo: nil, repeats: true)
         InvestrCore.getStandings(tempID, names: self.names, wallets: self.wallets)
         self.currentStocksAIV.startAnimating()
         // Do any additional setup after loading the view.
@@ -137,7 +137,7 @@ class CurrentGameVC: UIViewController, Observable {
     func getStocks()
     {
         let query = PFQuery(className: "Transaction")
-        query.whereKey("GameID", equalTo: PFObject(withoutDataWithClassName: "Game", objectId: self.tempID))
+        query.whereKey("GameID", equalTo: PFObject(outDataWithClassName: "Game", objectId: self.tempID))
         query.whereKey("userName", equalTo: InvestrCore.currUser)
         query.findObjectsInBackgroundWithBlock
         {
@@ -194,7 +194,7 @@ class CurrentGameVC: UIViewController, Observable {
                     
                     found = true
                 }
-                i++
+                i = i + 1
             }
             if(found == false && InvestrCore.selling == false)
             {

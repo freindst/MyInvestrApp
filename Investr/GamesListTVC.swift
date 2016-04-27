@@ -110,7 +110,7 @@ class GamesListTVC: UIViewController
         if self.revealViewController() != nil
         {
             self.menuButton.target = self.revealViewController()
-            self.menuButton.action = "revealToggle:"
+            self.menuButton.action = #selector(SWRevealViewController.revealToggle(_:))
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
     }
@@ -230,7 +230,7 @@ class GamesListTVC: UIViewController
                             if indexPath!.section == 0
                             {
                                 let query2 = PFQuery(className: "Transaction")
-                                query2.whereKey("GameID", equalTo: PFObject(withoutDataWithClassName: "Game", objectId: self.newPlayingGames[(indexPath?.row)!].id))
+                                query2.whereKey("GameID", equalTo: PFObject(outDataWithClassName: "Game", objectId: self.newPlayingGames[(indexPath?.row)!].id))
                                 query2.whereKey("userName", equalTo: InvestrCore.currUser)
                                 query2.findObjectsInBackgroundWithBlock
                                     {

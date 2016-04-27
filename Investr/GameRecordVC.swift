@@ -49,7 +49,7 @@ class GameRecordVC: UIViewController, Observable
         if self.revealViewController() != nil
         {
             self.menuButton.target = self.revealViewController()
-            self.menuButton.action = "revealToggle:"
+            self.menuButton.action = #selector(SWRevealViewController.revealToggle(_:))
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
         InvestrCore.finalMoney.addObserver(self)

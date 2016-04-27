@@ -26,7 +26,7 @@ class GameHistoryTVC: UIViewController
         if self.revealViewController() != nil
         {
             self.menuButton.target = self.revealViewController()
-            self.menuButton.action = "revealToggle:"
+            self.menuButton.action = #selector(SWRevealViewController.revealToggle(_:))
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
 
@@ -54,13 +54,13 @@ class GameHistoryTVC: UIViewController
                 if let objects = objects
                 {
                     print("Successfully found \(objects.count) games")
-                    for(var i = 0; i<objects.count;i++)
+                    for i in 0.stride(to: objects.count, by: 1)
                     {
                         var tempPlace = 0
-                        for(var j = 0; j < objects[i]["finalStandings"].count; j++)
+                        for(var j = 0; j < objects[i]["finalStandings"].count; j = j + 1)
                         {
                             
-                            if(objects[i]["finalStandings"][j]["username"] as! String == InvestrCore.currUser)
+                            if(objects[i].objectForKey("finalStanding")![j].objectForKey("username") as! String == InvestrCore.currUser)
                             {
                                 tempPlace = j+1
                                 j = 1000000000
@@ -122,7 +122,7 @@ class GameHistoryTVC: UIViewController
     {
         let query2 = PFQuery(className: "Transaction")
         query2.whereKey("userName", equalTo: InvestrCore.currUser)
-        query2.whereKey("GameID", equalTo: PFObject(withoutDataWithClassName: "Game", objectId: theGames[indexPath.row].id))
+        query2.whereKey("GameID", equalTo: PFObject(outDataWithClassName: "Game", objectId: theGames[indexPath.row].id))
         query2.findObjectsInBackgroundWithBlock
         {
             (objects: [PFObject]?, error: NSError?) -> Void in
@@ -131,30 +131,31 @@ class GameHistoryTVC: UIViewController
                 if let objects = objects
                 {
                     self.tempFinal = String(objects[0]["currentMoney"])
-                    for(var i = 0;i<objects[0]["log"].count;i++)
+                    for i in 0.stride(to: objects[0]["log"].count, by: 1)
                     {
-                        let logString = objects[0]["log"][i]
+                        //let logString = objects[0]["log"][i]
+                        let logString = objects[0].objectForKey("log")![i] as AnyObject
                         let dateFormatter = NSDateFormatter()
                         dateFormatter.dateFormat = "yyyy-MM-dd hh:mm:ss.SSSSxxx"
                         print(logString)
-                        let tempTime = logString["time"] as! NSDate
+                        let tempTime = logString.objectForKey("time") as! NSDate
                         print(tempTime)
                         
-                        if(logString["operation"] as! String == "join")
+                        if(logString.objectForKey("operation") as! String == "join")
                         {
-                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: "Joined the Game", ticker: "", value: "", date: logString["time"] as! NSDate, amount: "", wallet: ""))
+                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: "Joined the Game", ticker: "", value: "", date: logString.objectForKey("time") as! NSDate, amount: "", wallet: ""))
                         }
-                        else if(logString["operation"] as! String == "checkout")
+                        else if(logString.objectForKey("operation") as! String == "checkout")
                         {
-                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: "Game End", ticker: "", value: "", date: logString["time"] as! NSDate, amount: "", wallet: ""))
+                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: "Game End", ticker: "", value: "", date: logString.objectForKey("time") as! NSDate, amount: "", wallet: ""))
                         }
                         else
                         {
-                            let tempValue = logString["value"] as! NSNumber
-                            let tempAmount = logString["share"] as! NSNumber
-                            let tempWallet = logString["wallet"] as! NSNumber
+                            let tempValue = logString.objectForKey("value") as! NSNumber
+                            let tempAmount = logString.objectForKey("share") as! NSNumber
+                            let tempWallet = logString.objectForKey("wallet") as! NSNumber
                             
-                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: logString["operation"] as! String, ticker: logString["ticker"] as! String, value: "\(tempValue)", date: logString["time"] as! NSDate, amount: "\(tempAmount)", wallet: "\(tempWallet)"))
+                            self.theGames[indexPath.row].theTransactions.append(Transaction(type: logString.objectForKey("operation") as! String, ticker: logString.objectForKey("ticker") as! String, value: "\(tempValue)", date: logString.objectForKey("time") as! NSDate, amount: "\(tempAmount)", wallet: "\(tempWallet)"))
                         }
                     }
                     InvestrCore.finalMoney.updateValue("\(self.tempFinal)")

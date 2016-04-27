@@ -32,7 +32,7 @@ class MenuVC: UIViewController, Observable {
         if self.revealViewController() != nil
         {
             self.menuButton.target = self.revealViewController()
-            self.menuButton.action = "revealToggle:"
+            self.menuButton.action = #selector(SWRevealViewController.revealToggle(_:))
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
         
@@ -135,7 +135,7 @@ class MenuVC: UIViewController, Observable {
                         let tempPot = object["PotSize"] as! Double
                         let tempPrice = object["Price"] as! Double
                        self.theGamesList.append(Game(name: tempName, id: tempID!, end: tempEnd, start: tempStart, numPLayers: tempNumPlayers, pot: tempPot, price: tempPrice))
-                        for(var i = 0;i<self.thePortfolios.count;i++)
+                        for i in 0.stride(to: self.thePortfolios.count, by: 1)
                         {
                             if(tempID == self.theGames[i] as? NSString)
                             {
